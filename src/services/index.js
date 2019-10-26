@@ -1,9 +1,17 @@
-const { productsMock } = require('../utils/mocks');
+const MongoConnect = require('../lib/mongo');
 
 class ProductService {
-  async getProducts() {
-    const products = await Promise.resolve(productsMock);
-    return products || [];
+  constructor() {
+    this.client = new MongoConnect(MONGO_URI, { useNewParser: true });
+    this.dbName = DB_NAME;
+  }
+  getProducts(collection, query) {
+    return this.connect().then(db => {
+      return db
+        .collection(collection)
+        .find(query)
+        .toArray();
+    });
   }
 }
 
