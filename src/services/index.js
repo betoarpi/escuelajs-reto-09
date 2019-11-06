@@ -1,17 +1,13 @@
-const MongoConnect = require('../lib/mongo');
+const MongoLib = require('../lib/mongo');
 
 class ProductService {
   constructor() {
-    this.client = new MongoConnect(MONGO_URI, { useNewParser: true });
-    this.dbName = DB_NAME;
+    this.collection = 'products';
+    this.mongoDB = new MongoLib();
   }
-  getProducts(collection, query) {
-    return this.connect().then(db => {
-      return db
-        .collection(collection)
-        .find(query)
-        .toArray();
-    });
+  async getProducts(query) {
+    const products = await this.mongoDB.getAll(this.collection, query);
+    return products || [];
   }
 }
 
