@@ -21,9 +21,10 @@ class MongoLib {
       MongoLib.connection = new Promise((resolve, reject) => {
         this.client.connect(err => {
           if (err) {
+            console.log(this.dbName);
             reject(err);
           }
-          console.log('Connected succesfully to mongo');
+          console.log(`Connected succesfully to mongo: ${this.dbName}`);
           resolve(this.client.db(this.dbName));
         });
       });
@@ -37,12 +38,30 @@ class MongoLib {
     })
   }
 
+  get(collection, id) {
+    return this.connect().then(db => {
+      return db.collection(collection).findOne({ _id: ObjectId(id) });
+    })
+  }
+
   create(collection, data) {
     return this.connect()
       .then(db => {
         return db.collection(collection).insertOne(data);
       })
       .then(result => result.insertedId);
+  }
+
+  update(collection, id, data) {
+    return this.connect().then(db => {
+      return db.collection(collection).updateOne({ _id: ObjectId(id) }, { $set: data }, { upsert: true });
+    }).then(result => result.upsertedId || id)
+  }
+
+  delete(collection, data) {
+    return this.connect().then(db => {
+      return db.collection(collection).deleteOne({ _id: ObjectId(id) });
+    }).then(() => id);
   }
 }
 
